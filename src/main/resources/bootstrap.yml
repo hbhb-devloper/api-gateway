@@ -57,7 +57,7 @@ spring:
       config:
         format: yaml
         prefix: config/@project.artifactId@
-        default-context: @env@
+        default-context: default
         profile-separator: ' '
 
 ################### 线上环境配置 ###################
@@ -81,5 +81,5 @@ spring:
       config:
         format: yaml
         prefix: config/@project.artifactId@
-        default-context: @env@
+        default-context: default
         profile-separator: ' '
