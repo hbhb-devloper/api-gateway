@@ -81,5 +81,5 @@ spring:
       config:
         format: yaml
         prefix: config/@project.artifactId@
-        default-context: default
+        default-context: prd
         profile-separator: ' '
