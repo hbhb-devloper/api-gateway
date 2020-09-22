@@ -11,7 +11,7 @@ steps:
         path: /root/.m2
     commands:
       - mvn -v
-      - mvn clean -P${DRONE_BRANCH} package -DskipTests=true -Dmaven.javadoc.skip=true
+      - mvn clean -Pprd package -DskipTests=true -Dmaven.javadoc.skip=true
 
   # docker镜像推送
   - name: docker
@@ -25,7 +25,7 @@ steps:
       password:
         from_secret: docker_pwd
       mirror: https://wm9kcxms.mirror.aliyuncs.com
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/hbhb/api-gateway-${DRONE_BRANCH}
+      repo: registry-vpc.cn-hangzhou.aliyuncs.com/hbhb/api-gateway
       registry: registry-vpc.cn-hangzhou.aliyuncs.com
       tags: latest
       dockerfile: ./Dockerfile
@@ -44,10 +44,10 @@ steps:
       script_stop: false
       script:
         - cd ~
-        - docker-compose stop api-gateway-${DRONE_BRANCH}
-        - docker-compose rm -f api-gateway-${DRONE_BRANCH}
-        - docker rmi registry.cn-hangzhou.aliyuncs.com/hbhb/api-gateway-${DRONE_BRANCH}
-        - docker-compose up -d api-gateway-${DRONE_BRANCH}
+        - docker-compose stop api-gateway
+        - docker-compose rm -f api-gateway
+        - docker rmi registry.cn-hangzhou.aliyuncs.com/hbhb/api-gateway
+        - docker-compose up -d api-gateway
 
   # 钉钉通知
   - name: dingtalk
