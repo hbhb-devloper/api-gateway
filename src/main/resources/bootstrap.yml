@@ -13,9 +13,7 @@ host:
   # 宿主机公网ip
   ip: 112.13.201.108
   # 容器映射到docker0的端口
-  prd-port: ${server.port}
-  test-port: 8801
-  dev-port: 8802
+  map-port: ${server.port}
 
 feign:
   client:
@@ -62,10 +60,10 @@ spring:
         default-context: @env@
         profile-separator: ' '
 
-################### 正式环境配置 ###################
+################### 线上环境配置 ###################
 ---
 spring:
-  profiles: prd
+  profiles: dev, test, prd
   application:
     name: @project.artifactId@
   cloud:
@@ -76,58 +74,10 @@ spring:
         instance-id: ${spring.application.name}-${server.port}-${spring.cloud.client.ip-address}
         service-name: ${spring.application.name}
         # 线上使用使用docker0的ip地址172.17.0.1
-        health-check-url: http://172.17.0.1:${host.prd-port}/actuator/health
+        health-check-url: http://172.17.0.1:${host.map-port}/actuator/health
         # 暴露的ip地址为宿主机地址，供调用方寻址用
         hostname: ${host.ip}
-        port: ${host.prd-port}
-      config:
-        format: yaml
-        prefix: config/@project.artifactId@
-        default-context: @env@
-        profile-separator: ' '
-
-################### 测试环境配置 ###################
----
-spring:
-  profiles: test
-  application:
-    name: @project.artifactId@
-  cloud:
-    consul:
-      host: consul
-      port: 8500
-      discovery:
-        instance-id: ${spring.application.name}-${server.port}-${spring.cloud.client.ip-address}
-        service-name: ${spring.application.name}
-        # 线上使用使用docker0的ip地址172.17.0.1
-        health-check-url: http://172.17.0.1:${host.test-port}/actuator/health
-        # 暴露的ip地址为宿主机地址，供调用方寻址用
-        hostname: ${host.ip}
-        port: ${host.test-port}
-      config:
-        format: yaml
-        prefix: config/@project.artifactId@
-        default-context: @env@
-        profile-separator: ' '
-
-################### 开发环境配置 ###################
----
-spring:
-  profiles: dev
-  application:
-    name: @project.artifactId@
-  cloud:
-    consul:
-      host: consul
-      port: 8500
-      discovery:
-        instance-id: ${spring.application.name}-${server.port}-${spring.cloud.client.ip-address}
-        service-name: ${spring.application.name}
-        # 线上使用使用docker0的ip地址172.17.0.1
-        health-check-url: http://172.17.0.1:${host.dev-port}/actuator/health
-        # 暴露的ip地址为宿主机地址，供调用方寻址用
-        hostname: ${host.ip}
-        port: ${host.dev-port}
+        port: ${host.map-port}
       config:
         format: yaml
         prefix: config/@project.artifactId@
