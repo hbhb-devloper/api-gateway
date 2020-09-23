@@ -15,10 +15,10 @@ spring:
         prefer-ip-address: true
         instance-id: ${spring.application.name}-${server.port}-${spring.cloud.client.ip-address}
         service-name: ${spring.application.name}
-        health-check-url: http://${host.docker0-ip}:10058/actuator/health
+        health-check-url: http://${host.docker0-ip}:${host.map-port}/actuator/health
       config:
         format: yaml
-        prefix: config/@project.artifactId@
+        prefix: config/${spring.application.name}
         default-context: default
         profile-separator: ' '
 
