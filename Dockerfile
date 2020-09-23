@@ -13,4 +13,4 @@ COPY --from=builder application/snapshot-dependencies/ ./
 RUN true
 COPY --from=builder application/application/ ./
 ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"]
-EXPOSE 8800
+EXPOSE 8880
