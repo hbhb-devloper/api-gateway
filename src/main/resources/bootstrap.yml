@@ -1,5 +1,5 @@
 server:
-  port: 8880
+  port: 8888
   # 启用压缩（从终端到该实例）
   compression:
     enabled: true
@@ -9,12 +9,13 @@ spring:
     name: @project.artifactId@
   cloud:
     consul:
+#      host: consul.yeexun.com.cn
       host: ${host.docker0-ip}
       discovery:
         prefer-ip-address: true
         instance-id: ${spring.application.name}-${server.port}-${spring.cloud.client.ip-address}
         service-name: ${spring.application.name}
-        health-check-url: http://${host.docker0-ip}:${host.map-port}/actuator/health
+        health-check-url: http://${host.docker0-ip}:10058/actuator/health
       config:
         format: yaml
         prefix: config/@project.artifactId@
