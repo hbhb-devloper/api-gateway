@@ -9,8 +9,8 @@ spring:
     name: @project.artifactId@
   cloud:
     consul:
-#      host: consul.yeexun.com.cn
-      host: ${host.docker0-ip}
+      host: consul.yeexun.com.cn
+      #      host: ${host.docker0-ip}
       discovery:
         prefer-ip-address: true
         instance-id: ${spring.application.name}-${server.port}-${spring.cloud.client.ip-address}
@@ -51,4 +51,5 @@ host:
   # docker0的ip地址
   docker0-ip: 172.17.0.1
   # 线上环境映射的端口
-  map-port: 10009
+  #  map-port: 10010
+  map-port: 10060
