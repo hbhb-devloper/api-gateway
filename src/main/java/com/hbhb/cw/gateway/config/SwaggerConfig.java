@@ -1,5 +1,7 @@
 package com.hbhb.cw.gateway.config;
 
+import com.hbhb.core.utils.RegexUtil;
+
 import org.springdoc.core.AbstractSwaggerUiConfigProperties;
 import org.springdoc.core.GroupedOpenApi;
 import org.springdoc.core.SwaggerUiConfigParameters;
@@ -44,7 +46,7 @@ public class SwaggerConfig {
         Set<AbstractSwaggerUiConfigProperties.SwaggerUrl> swaggerUrls = new HashSet<>();
 
         definitions.stream()
-                .filter(routeDefinition -> routeDefinition.getId().matches("^(?!ReactiveCompositeDiscoveryClient_).*$"))
+                .filter(routeDefinition -> RegexUtil.isNotStartWith(routeDefinition.getId(), "ReactiveCompositeDiscoveryClient_"))
                 .forEach(routeDefinition -> swaggerUiConfigParameters.addGroup(routeDefinition.getId()));
         return groups;
     }
