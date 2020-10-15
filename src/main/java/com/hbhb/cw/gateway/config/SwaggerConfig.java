@@ -1,5 +1,6 @@
 package com.hbhb.cw.gateway.config;
 
+import org.springdoc.core.AbstractSwaggerUiConfigProperties;
 import org.springdoc.core.GroupedOpenApi;
 import org.springdoc.core.SwaggerUiConfigParameters;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +11,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -38,13 +41,11 @@ public class SwaggerConfig {
     public List<GroupedOpenApi> apis(SwaggerUiConfigParameters swaggerUiConfigParameters, RouteDefinitionLocator locator) {
         List<GroupedOpenApi> groups = new ArrayList<>();
         List<RouteDefinition> definitions = locator.getRouteDefinitions().collectList().block();
+        Set<AbstractSwaggerUiConfigProperties.SwaggerUrl> swaggerUrls = new HashSet<>();
+
         definitions.stream()
-//                .filter(routeDefinition -> routeDefinition.getId().matches("^[^ReactiveCompositeDiscoveryClient_].*"))
-                .forEach(routeDefinition -> {
-                    String name = routeDefinition.getId();
-                    swaggerUiConfigParameters.addGroup(name);
-//                    GroupedOpenApi.builder().pathsToMatch("/" + name +/**/ "/**").group(name).build();
-                });
+                .filter(routeDefinition -> routeDefinition.getId().matches("^(?!ReactiveCompositeDiscoveryClient_).*$"))
+                .forEach(routeDefinition -> swaggerUiConfigParameters.addGroup(routeDefinition.getId()));
         return groups;
     }
 

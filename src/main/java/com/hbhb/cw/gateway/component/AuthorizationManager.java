@@ -1,7 +1,7 @@
 package com.hbhb.cw.gateway.component;
 
-import com.hbhb.cw.gateway.constant.AuthConstant;
-import com.hbhb.cw.gateway.redis.RedisHelper;
+import com.hbhb.core.constants.AuthConstant;
+import com.hbhb.redis.component.RedisHelper;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authorization.AuthorizationDecision;

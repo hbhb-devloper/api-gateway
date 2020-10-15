@@ -1,7 +1,8 @@
 package com.hbhb.cw.gateway.util;
 
-import com.hbhb.common.bean.ResponseVO;
-import com.hbhb.cw.gateway.exception.enums.AuthErrorCode;
+import com.hbhb.core.bean.ApiResult;
+import com.hbhb.core.utils.JsonUtil;
+import com.hbhb.cw.gateway.enums.AuthErrorCode;
 
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.CacheControl;
@@ -26,7 +27,7 @@ public class ResponseUtil {
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         response.getHeaders().setAccessControlAllowOrigin("*");
         response.getHeaders().setCacheControl(CacheControl.noCache());
-        String body = JsonUtil.convert2Str(ResponseVO.error(errorCode.getCode(), errorCode.getMessage()));
+        String body = JsonUtil.convert2Str(ApiResult.error(errorCode.getCode(), errorCode.getMessage()));
         DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
         return exchange.getResponse().writeWith(Mono.just(buffer));
     }

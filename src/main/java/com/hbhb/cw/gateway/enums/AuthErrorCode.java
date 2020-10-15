@@ -1,4 +1,4 @@
-package com.hbhb.cw.gateway.exception.enums;
+package com.hbhb.cw.gateway.enums;
 
 import lombok.Getter;
 

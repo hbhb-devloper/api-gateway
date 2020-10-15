@@ -1,6 +1,6 @@
 package com.hbhb.cw.gateway.component;
 
-import com.hbhb.cw.gateway.exception.enums.AuthErrorCode;
+import com.hbhb.cw.gateway.enums.AuthErrorCode;
 import com.hbhb.cw.gateway.util.ResponseUtil;
 
 import org.springframework.security.core.AuthenticationException;

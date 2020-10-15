@@ -1,9 +1,9 @@
 package com.hbhb.cw.gateway.config;
 
+import com.hbhb.core.constants.AuthConstant;
 import com.hbhb.cw.gateway.component.AuthorizationManager;
 import com.hbhb.cw.gateway.component.CustomServerAccessDeniedHandler;
 import com.hbhb.cw.gateway.component.CustomServerAuthenticationEntryPoint;
-import com.hbhb.cw.gateway.constant.AuthConstant;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
