@@ -50,6 +50,6 @@ management:
 host:
   # docker0的ip地址
   docker0-ip: 172.17.0.1
-    # 线上环境映射的端口
-    map-port: 10010
+  # 线上环境映射的端口
+  map-port: 10010
 #  map-port: 10060
