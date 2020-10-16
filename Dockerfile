@@ -8,7 +8,6 @@ WORKDIR application
 COPY --from=builder application/dependencies/ ./
 COPY --from=builder application/spring-boot-loader/ ./
 COPY --from=builder application/snapshot-dependencies/ ./
-RUN true
 COPY --from=builder application/application/ ./
-ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"]
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
 EXPOSE 8880
