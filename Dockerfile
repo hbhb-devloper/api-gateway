@@ -1,9 +1,9 @@
-FROM 8-jdk-alpine as builder
+FROM openjdk:8-jdk-alpine as builder
 WORKDIR application
 ADD ./target/*.jar app.jar
 RUN java -Djarmode=layertools -jar app.jar extract
 
-FROM 8-jdk-alpine
+FROM openjdk:8-jdk-alpine
 WORKDIR application
 COPY --from=builder application/dependencies/ ./
 COPY --from=builder application/spring-boot-loader/ ./
