@@ -5,6 +5,7 @@ import com.hbhb.cw.gateway.component.AuthorizationManager;
 import com.hbhb.cw.gateway.component.CustomServerAccessDeniedHandler;
 import com.hbhb.cw.gateway.component.CustomServerAuthenticationEntryPoint;
 
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -27,6 +28,7 @@ import reactor.core.publisher.Mono;
  *
  * @author dxk
  */
+@RefreshScope
 @Configuration
 @EnableWebFluxSecurity
 public class ResourceServerConfig {
