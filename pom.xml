@@ -82,6 +82,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-epoll</artifactId>
+            <version>4.1.51.Final</version>
+            <classifier>linux-x86_64</classifier>
+        </dependency>
 
         <!-- hbhb基础包-->
         <dependency>
