@@ -7,9 +7,15 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.servers.Server;
+
 /**
  * @author dxk
  */
+@OpenAPIDefinition(servers = {
+        @Server(url = "https://gateway.yeexun.com.cn")
+})
 @RefreshScope
 @EnableScheduling
 @EnableFeignClients
