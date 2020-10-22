@@ -58,7 +58,7 @@ public class SwaggerConfig {
     public OpenAPI customOpenApi() {
         return new OpenAPI()
                 .components(new Components()
-                        .addParameters("myHeader1", new Parameter().in("header").schema(new StringSchema()).name("myHeader1")).addHeaders("myHeader2", new Header().description("myHeader2 header").schema(new StringSchema()))
+                        .addParameters("Content-Security-Policy", new Parameter().in("header").schema(new StringSchema()).name("upgrade-insecure-requests"))
                         .addHeaders("Content-Security-Policy", new Header().description("upgrade-insecure-requests").schema(new StringSchema())))
                 .info(new Info()
                         .title(title)
