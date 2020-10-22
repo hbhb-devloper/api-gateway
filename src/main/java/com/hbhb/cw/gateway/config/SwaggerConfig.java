@@ -19,10 +19,7 @@ import java.util.Set;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.media.StringSchema;
-import io.swagger.v3.oas.models.parameters.Parameter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -57,9 +54,7 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenApi() {
         return new OpenAPI()
-                .components(new Components()
-                        .addParameters("Content-Security-Policy", new Parameter().in("header").schema(new StringSchema()).name("upgrade-insecure-requests"))
-                        .addHeaders("Content-Security-Policy", new Header().description("upgrade-insecure-requests").schema(new StringSchema())))
+                .components(new Components())
                 .info(new Info()
                         .title(title)
                         .version(version)
