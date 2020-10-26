@@ -51,7 +51,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         // 判断jti标识是否存在黑名单列表里
         Boolean isBlack = redisHelper.hasKey(AuthConstant.TOKEN_BLACKLIST_PREFIX.value() + jti);
         if (isBlack) {
-            return ResponseUtil.render(exchange, AuthErrorCode.TOKEN_INVALID_OR_EXPIRED);
+            return ResponseUtil.render(exchange, AuthErrorCode.TOKEN_EXPIRED);
         }
 
         ServerHttpRequest request = exchange.getRequest().mutate()

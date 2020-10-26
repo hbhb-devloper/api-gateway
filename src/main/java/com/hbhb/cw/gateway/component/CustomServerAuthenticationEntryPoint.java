@@ -21,7 +21,7 @@ public class CustomServerAuthenticationEntryPoint implements ServerAuthenticatio
 
     @Override
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
-        return ResponseUtil.render(exchange, AuthErrorCode.TOKEN_INVALID_OR_EXPIRED);
+        return ResponseUtil.render(exchange, AuthErrorCode.TOKEN_INVALID);
     }
 
 }

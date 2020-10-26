@@ -1,6 +1,7 @@
 package com.hbhb.cw.gateway.util;
 
 import com.hbhb.core.bean.ApiResult;
+import com.hbhb.core.bean.MessageConvert;
 import com.hbhb.core.utils.JsonUtil;
 import com.hbhb.cw.gateway.enums.AuthErrorCode;
 
@@ -27,7 +28,8 @@ public class ResponseUtil {
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         response.getHeaders().setAccessControlAllowOrigin("*");
         response.getHeaders().setCacheControl(CacheControl.noCache());
-        String body = JsonUtil.convert2Str(ApiResult.error(errorCode.getCode(), errorCode.getMessage()));
+        String body = JsonUtil.convert2Str(
+                ApiResult.error(errorCode.getCode(), MessageConvert.convert(errorCode.getMessage())));
         DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
         return exchange.getResponse().writeWith(Mono.just(buffer));
     }

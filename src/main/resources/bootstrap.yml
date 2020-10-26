@@ -21,10 +21,6 @@ spring:
         prefix: config/${spring.application.name}
         default-context: default
         profile-separator: ' '
-    gateway:
-      filter:
-        secure-headers:
-          content-security-policy: "default-src 'self' https: http:; font-src 'self' https: data:; img-src 'self' https: data:; object-src 'none'; script-src https:; style-src 'self' https: 'unsafe-inline'"
 
 feign:
   client:
