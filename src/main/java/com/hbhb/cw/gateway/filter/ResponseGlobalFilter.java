@@ -94,7 +94,6 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      * 封装响应体
      */
     private String response(ObjectMapper mapper, String result) {
-        log.debug("响应值={}", result);
         try {
             Object object = mapper.readValue(result, Object.class);
             return mapper.writeValueAsString(ApiResult.success(object));
