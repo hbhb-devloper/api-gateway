@@ -59,7 +59,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
             @Override
             public Mono<Void> writeWith(@Nullable Publisher<? extends DataBuffer> body) {
                 // swagger端点响应不需要封装
-//                if (!request.getURI().getPath().contains("/v3/api-docs")) {
+                if (!request.getURI().getPath().contains("/v3/api-docs")) {
                     if (body instanceof Flux) {
                         Flux<? extends DataBuffer> fluxBody = (Flux<? extends DataBuffer>) body;
                         return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
@@ -83,7 +83,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
                             return bufferFactory.wrap(uppedContent);
                         }));
                     }
-//                }
+                }
                 return super.writeWith(Objects.requireNonNull(body));
             }
         };
