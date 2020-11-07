@@ -99,10 +99,11 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
             Map<String, Object> map = mapper.readValue(result, Map.class);
             return mapper.writeValueAsString(ApiResult.success(map));
         } catch (Exception e1) {
+            log.error("封装响应体失败", e1);
             try {
                 return mapper.writeValueAsString(ApiResult.error(ResultCode.EXCEPTION.code(), result));
             } catch (Exception e2) {
-                log.error("封装响应体失败：", e2);
+                log.error("封装响应体异常失败", e2);
             }
         }
         return result;
