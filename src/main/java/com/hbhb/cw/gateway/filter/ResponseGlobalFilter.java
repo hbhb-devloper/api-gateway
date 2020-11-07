@@ -96,8 +96,8 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
     private String response(ObjectMapper mapper, String result) {
         log.debug("响应值={}", result);
         try {
-            ApiResult apiResult = mapper.readValue(result, ApiResult.class);
-            return mapper.writeValueAsString(ApiResult.success(apiResult.getData()));
+            Object object = mapper.readValue(result, Object.class);
+            return mapper.writeValueAsString(ApiResult.success(object));
         } catch (Exception e1) {
             log.error("封装响应体失败", e1);
             try {
