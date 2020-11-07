@@ -1,11 +1,11 @@
 package com.hbhb.cw.gateway.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hbhb.core.bean.ApiResult;
-
+import com.hbhb.core.enums.ResultCode;
+import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -20,15 +20,13 @@ import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 /**
  * @author xiaokang
@@ -100,8 +98,12 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
         try {
             Map<String, Object> map = mapper.readValue(result, Map.class);
             return mapper.writeValueAsString(ApiResult.success(map));
-        } catch (Exception e) {
-            log.error("封装响应体失败：", e);
+        } catch (Exception e1) {
+            try {
+                return mapper.writeValueAsString(ApiResult.error(ResultCode.EXCEPTION.code(), result));
+            } catch (Exception e2) {
+                log.error("封装响应体失败：", e2);
+            }
         }
         return result;
     }
