@@ -25,7 +25,6 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -60,7 +59,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
             @Override
             public Mono<Void> writeWith(@Nullable Publisher<? extends DataBuffer> body) {
                 // swagger端点响应不需要封装
-                if (!request.getURI().getPath().contains("/v3/api-docs")) {
+//                if (!request.getURI().getPath().contains("/v3/api-docs")) {
                     if (body instanceof Flux) {
                         Flux<? extends DataBuffer> fluxBody = (Flux<? extends DataBuffer>) body;
                         return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
@@ -84,7 +83,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
                             return bufferFactory.wrap(uppedContent);
                         }));
                     }
-                }
+//                }
                 return super.writeWith(Objects.requireNonNull(body));
             }
         };
@@ -96,8 +95,8 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      */
     private String response(ObjectMapper mapper, String result) {
         try {
-            Map<String, Object> map = mapper.readValue(result, Map.class);
-            return mapper.writeValueAsString(ApiResult.success(map));
+            ApiResult apiResult = mapper.readValue(result, ApiResult.class);
+            return mapper.writeValueAsString(ApiResult.success(apiResult.getData()));
         } catch (Exception e1) {
             log.error("封装响应体失败", e1);
             try {
