@@ -5,6 +5,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.hbhb.core.bean.ApiResult;
 import com.hbhb.core.enums.ResultCode;
+import com.hbhb.core.utils.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -96,7 +97,9 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
     private String response(ObjectMapper mapper, String result) {
         try {
             Object object = mapper.readValue(result, Object.class);
-            return mapper.writeValueAsString(ApiResult.success(object));
+            if (ResultCode.SUCCESS.code().equals(JsonUtil.findByKey(result, "code"))) {
+                return mapper.writeValueAsString(ApiResult.success(object));
+            }
         } catch (Exception e1) {
             log.error("封装响应体失败", e1);
             try {
