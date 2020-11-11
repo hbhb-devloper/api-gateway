@@ -25,6 +25,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,6 +42,14 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      * 将 List 数据以""分隔进行拼接
      */
     private static final Joiner JOINER = Joiner.on("");
+
+    /**
+     * 不需要做响应体封装的资源
+     */
+    private static final String[] EXCLUDE_PATH = {
+            "/v3/api-docs",
+            "/export"
+    };
 
     private final ThreadLocal<ObjectMapper> mapperThreadLocal = ThreadLocal.withInitial(ObjectMapper::new);
 
@@ -59,8 +68,8 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
         ServerHttpResponseDecorator decorator = new ServerHttpResponseDecorator(response) {
             @Override
             public Mono<Void> writeWith(@Nullable Publisher<? extends DataBuffer> body) {
-                // swagger端点响应不需要封装
-                if (!request.getURI().getPath().contains("/v3/api-docs")) {
+                // 检查path是否需要封装响应体
+                if (Arrays.stream(EXCLUDE_PATH).noneMatch(request.getURI().getPath()::contains)) {
                     if (body instanceof Flux) {
                         Flux<? extends DataBuffer> fluxBody = (Flux<? extends DataBuffer>) body;
                         return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
@@ -97,7 +106,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
     private String response(ObjectMapper mapper, String result) {
         try {
             Object object = mapper.readValue(result, Object.class);
-            // 各微服务接口调用成功时，响应体没有做封装；失败或异常时，响应体做了封装
+            // 各微服务接口调用成功时，响应体没有做封装；异常时，响应体做了封装
             if (JsonUtil.findByKey(result, "code") == null) {
                 return mapper.writeValueAsString(ApiResult.success(object));
             }
