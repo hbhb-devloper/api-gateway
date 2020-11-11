@@ -68,16 +68,21 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
                 .filter(Authentication::isAuthenticated)
                 .flatMapIterable(Authentication::getAuthorities)
                 .map(GrantedAuthority::getAuthority)
-                .any(authorities::contains)
-//                .any(roleId -> {
-//                    // roleId是请求用户的角色(格式:ROLE_{roleId})，authorities是请求资源所需要角色的集合
-//                    log.info("访问路径：{}", path);
-//                    log.info("用户角色信息：{}", roleId);
-//                    log.info("资源需要权限authorities：{}", authorities);
-//                    return authorities.contains(roleId);
-//                })
+                .any(roleId -> this.authorization(authorities, roleId))
                 .map(AuthorizationDecision::new)
                 .defaultIfEmpty(new AuthorizationDecision(false));
+    }
+
+    /**
+     * 鉴权方法
+     * @param authorities 请求该资源所需要角色的集合（从redis中获取）
+     * @param roleId 请求用户的角色（格式：ROLE_{roleId}）
+     * @return 是否有权限访问该资源
+     */
+    private boolean authorization(Set<String> authorities, String roleId) {
+        // todo 暂时跳过鉴权，后续完善
+        return true;
+//        return authorities.contains(roleId);
     }
 
 }
