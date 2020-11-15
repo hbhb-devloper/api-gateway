@@ -85,7 +85,6 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
                             // 将多次返回的参数拼接起来
                             String responseData = JOINER.join(list);
                             // 重置返回参数
-                            log.info(list.toString());
                             String result = response(mapper, responseData);
                             byte[] uppedContent = new String(
                                     result.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8).getBytes();
@@ -105,7 +104,6 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      * 封装响应体
      */
     private String response(ObjectMapper mapper, String result) {
-        log.info("返回值={}", result);
         try {
             Object object = mapper.readValue(result, Object.class);
             // 各微服务接口调用成功时，响应体没有做封装；异常时，响应体做了封装
