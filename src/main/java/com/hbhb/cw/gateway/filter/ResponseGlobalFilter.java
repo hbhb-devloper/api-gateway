@@ -107,7 +107,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      * 封装响应体
      */
     private String response(ObjectMapper mapper, String result) {
-        log.debug("返回值={}", result);
+        log.info("返回值={}", result);
         try {
             Object object = mapper.readValue(result, Object.class);
             // 各微服务接口调用成功时，响应体没有做封装；异常时，响应体做了封装
