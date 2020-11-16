@@ -1,12 +1,13 @@
 package com.hbhb.cw.gateway.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hbhb.core.bean.ApiResult;
 import com.hbhb.core.enums.ResultCode;
 import com.hbhb.core.utils.JsonUtil;
-import lombok.extern.slf4j.Slf4j;
+
 import org.reactivestreams.Publisher;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -20,14 +21,17 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author xiaokang
@@ -102,12 +106,17 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
 
     /**
      * 封装响应体
+     * 微服务接口调用成功时，响应体没有做封装；异常时，响应体做了封装
      */
     private String response(ObjectMapper mapper, String result) {
         try {
-            Object object = mapper.readValue(result, Object.class);
-            // 各微服务接口调用成功时，响应体没有做封装；异常时，响应体做了封装
+            // 处理返回值为void
+            if (StringUtils.isEmpty(result)) {
+                return mapper.writeValueAsString(ApiResult.success());
+            }
+            // 接口调用成功
             if (JsonUtil.findByKey(result, "code") == null) {
+                Object object = mapper.readValue(result, Object.class);
                 return mapper.writeValueAsString(ApiResult.success(object));
             }
         } catch (Exception e1) {
