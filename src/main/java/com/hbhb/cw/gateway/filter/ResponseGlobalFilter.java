@@ -109,6 +109,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      * 微服务接口调用成功时，响应体没有做封装；异常时，响应体做了封装
      */
     private String response(ObjectMapper mapper, String result) {
+        log.info("网关接收返回值={}", result);
         try {
             // 处理返回值为void
             if (StringUtils.isEmpty(result)) {
