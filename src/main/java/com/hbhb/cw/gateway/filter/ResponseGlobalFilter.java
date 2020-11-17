@@ -110,6 +110,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
             if (JsonUtil.findByKey(result, "code") == null) {
                 return mapper.writeValueAsString(ApiResult.success(object));
             }
+            log.info("响应数据============:"+result);
         } catch (Exception e1) {
             log.error("封装响应体失败", e1);
             try {
