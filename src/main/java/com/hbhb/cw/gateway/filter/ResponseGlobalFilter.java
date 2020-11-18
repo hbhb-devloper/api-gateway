@@ -16,12 +16,12 @@ import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
 import java.nio.charset.StandardCharsets;
@@ -51,8 +51,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      * 不需要做响应体封装的资源
      */
     private static final String[] EXCLUDE_PATH = {
-            "/v3/api-docs",
-            "/export"
+            "/v3/api-docs"
     };
 
     private final ThreadLocal<ObjectMapper> mapperThreadLocal = ThreadLocal.withInitial(ObjectMapper::new);
@@ -72,30 +71,34 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
         ServerHttpResponseDecorator decorator = new ServerHttpResponseDecorator(response) {
             @Override
             public Mono<Void> writeWith(@Nullable Publisher<? extends DataBuffer> body) {
-                // 检查path是否需要封装响应体
+                MediaType mediaType = getDelegate().getHeaders().getContentType();
+                // 检查path白名单
                 if (Arrays.stream(EXCLUDE_PATH).noneMatch(request.getURI().getPath()::contains)) {
                     if (body instanceof Flux) {
-                        Flux<? extends DataBuffer> fluxBody = (Flux<? extends DataBuffer>) body;
-                        return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
-                            List<String> list = Lists.newArrayList();
-                            // gateway 针对返回参数过长的情况下会分段返回，使用如下方式接受返回参数则可避免
-                            dataBuffers.forEach(dataBuffer -> {
-                                byte[] content = new byte[dataBuffer.readableByteCount()];
-                                dataBuffer.read(content);
-                                // 释放掉内存
-                                DataBufferUtils.release(dataBuffer);
-                                list.add(new String(content, StandardCharsets.UTF_8));
-                            });
-                            // 将多次返回的参数拼接起来
-                            String responseData = JOINER.join(list);
-                            // 重置返回参数
-                            String result = response(mapper, responseData);
-                            byte[] uppedContent = new String(
-                                    result.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8).getBytes();
-                            // 修改后的返回参数必须重置长度，否则若修改后的参数长度超出原始参数长度时，会导致客户端接收到的参数丢失一部分
-                            response.getHeaders().setContentLength(uppedContent.length);
-                            return bufferFactory.wrap(uppedContent);
-                        }));
+                        Flux<DataBuffer> fluxBody = (Flux<DataBuffer>) body;
+                        // 返回格式为application/json时，进行响应体封装
+                        if (MediaType.APPLICATION_JSON_VALUE.equals(Objects.requireNonNull(mediaType).toString())){
+                            return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
+                                List<String> list = Lists.newArrayList();
+                                // gateway 针对返回参数过长的情况下会分段返回，使用如下方式接受返回参数则可避免
+                                dataBuffers.forEach(dataBuffer -> {
+                                    byte[] content = new byte[dataBuffer.readableByteCount()];
+                                    dataBuffer.read(content);
+                                    // 释放掉内存
+                                    DataBufferUtils.release(dataBuffer);
+                                    list.add(new String(content, StandardCharsets.UTF_8));
+                                });
+                                // 将多次返回的参数拼接起来
+                                String responseData = JOINER.join(list);
+                                // 重置返回参数
+                                String result = response(mapper, responseData);
+                                byte[] uppedContent = new String(
+                                        result.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8).getBytes();
+                                // 修改后的返回参数必须重置长度，否则若修改后的参数长度超出原始参数长度时，会导致客户端接收到的参数丢失一部分
+                                response.getHeaders().setContentLength(uppedContent.length);
+                                return bufferFactory.wrap(uppedContent);
+                            }));
+                        }
                     }
                 }
                 return super.writeWith(Objects.requireNonNull(body));
@@ -110,12 +113,13 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      */
     private String response(ObjectMapper mapper, String result) {
         try {
-            // 处理返回值为void
-            if (StringUtils.isEmpty(result)) {
-                return mapper.writeValueAsString(ApiResult.success());
+            // 如果是非json类型，则封装success返回
+            if (!JsonUtil.isJson(result)) {
+                return mapper.writeValueAsString(
+                        ApiResult.success(result.replace("\"", "")));
             }
-            // 接口调用成功
-            if (JsonUtil.findByKey(result, "code") == null) {
+            // 接口调用成功，则封装success返回
+            if (!result.contains(ResultCode.FAILED.msg())) {
                 Object object = mapper.readValue(result, Object.class);
                 return mapper.writeValueAsString(ApiResult.success(object));
             }
@@ -124,7 +128,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
             try {
                 return mapper.writeValueAsString(ApiResult.error(ResultCode.EXCEPTION.code(), result));
             } catch (Exception e2) {
-                log.error("封装响应体异常失败", e2);
+                log.error("解析响应体异常信息失败", e2);
             }
         }
         return result;
