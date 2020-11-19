@@ -1,7 +1,6 @@
 package com.hbhb.cw.gateway.filter;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hbhb.core.bean.ApiResult;
@@ -16,6 +15,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -26,7 +26,6 @@ import org.springframework.web.server.ServerWebExchange;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import lombok.extern.slf4j.Slf4j;
@@ -78,20 +77,15 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
                         Flux<DataBuffer> fluxBody = (Flux<DataBuffer>) body;
                         // 返回格式为application/json时，进行响应体封装
                         if (MediaType.APPLICATION_JSON_VALUE.equals(Objects.requireNonNull(mediaType).toString())){
-                            return super.writeWith(fluxBody.buffer().map(dataBuffers -> {
-                                List<String> list = Lists.newArrayList();
-                                // gateway 针对返回参数过长的情况下会分段返回，使用如下方式接受返回参数则可避免
-                                dataBuffers.forEach(dataBuffer -> {
-                                    byte[] content = new byte[dataBuffer.readableByteCount()];
-                                    dataBuffer.read(content);
-                                    // 释放掉内存
-                                    DataBufferUtils.release(dataBuffer);
-                                    list.add(new String(content, StandardCharsets.UTF_8));
-                                });
-                                // 将多次返回的参数拼接起来
-                                String responseData = JOINER.join(list);
+                            return super.writeWith(fluxBody.buffer().map(dataBuffer -> {
+                                // 如果响应体过大，会进行截断，出现乱码。join()方法可以合并所有的流，解决乱码问题
+                                DataBuffer join = new DefaultDataBufferFactory().join(dataBuffer);
+                                byte[] content = new byte[join.readableByteCount()];
+                                join.read(content);
+                                // 释放掉内存
+                                DataBufferUtils.release(join);
                                 // 重置返回参数
-                                String result = response(mapper, responseData);
+                                String result = response(mapper,  new String(content, StandardCharsets.UTF_8));
                                 byte[] uppedContent = new String(
                                         result.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8).getBytes();
                                 // 修改后的返回参数必须重置长度，否则若修改后的参数长度超出原始参数长度时，会导致客户端接收到的参数丢失一部分
@@ -112,7 +106,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      * 微服务接口调用成功时，响应体没有做封装；异常时，响应体做了封装
      */
     private String response(ObjectMapper mapper, String result) {
-        log.info("\\n 响应值: {}", JsonUtil.prettyJson(result));
+        log.debug("\\n 响应值: {}", JsonUtil.prettyJson(result));
         try {
             // 如果是非json类型，则封装success返回
             if (!JsonUtil.isJson(result)) {
