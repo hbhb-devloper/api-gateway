@@ -112,7 +112,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      * 微服务接口调用成功时，响应体没有做封装；异常时，响应体做了封装
      */
     private String response(ObjectMapper mapper, String result) {
-        log.info("响应值: {}", JsonUtil.prettyJson(result));
+        log.debug("\\n 响应值: {}", JsonUtil.prettyJson(result));
         try {
             // 如果是非json类型，则封装success返回
             if (!JsonUtil.isJson(result)) {
