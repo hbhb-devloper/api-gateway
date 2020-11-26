@@ -1,7 +1,5 @@
 package com.hbhb.cw.gateway.filter;
 
-import com.google.common.base.Joiner;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hbhb.core.bean.ApiResult;
 import com.hbhb.core.enums.ResultCode;
@@ -40,11 +38,6 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @SuppressWarnings(value = {"unchecked"})
 public class ResponseGlobalFilter implements GlobalFilter, Ordered {
-
-    /**
-     * 将 List 数据以""分隔进行拼接
-     */
-    private static final Joiner JOINER = Joiner.on("");
 
     /**
      * 不需要做响应体封装的资源
