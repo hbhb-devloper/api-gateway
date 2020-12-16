@@ -45,7 +45,8 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      * 不需要做响应体封装的资源
      */
     private static final String[] EXCLUDE_PATH = {
-            "/v3/api-docs"
+            "/v3/api-docs",
+            "/oauth/token"
     };
 
     private final ThreadLocal<ObjectMapper> mapperThreadLocal = ThreadLocal.withInitial(ObjectMapper::new);
