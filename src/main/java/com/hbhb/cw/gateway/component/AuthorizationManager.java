@@ -1,6 +1,7 @@
 package com.hbhb.cw.gateway.component;
 
 import com.hbhb.core.constants.AuthConstant;
+import com.hbhb.cw.gateway.config.WhiteListConfig;
 import com.hbhb.redis.component.RedisHelper;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -38,12 +39,19 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
 
     @Resource
     private RedisHelper redisHelper;
+    @Resource
+    private WhiteListConfig whiteListConfig;
 
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
         ServerHttpRequest request = authorizationContext.getExchange().getRequest();
         String path = request.getURI().getPath();
         PathMatcher pathMatcher = new AntPathMatcher();
+
+        // 白名单
+        if (whiteListConfig.getUrls().contains(path)) {
+            return Mono.just(new AuthorizationDecision(true));
+        }
 
         // token为空拒绝访问
         String token = request.getHeaders().getFirst(AuthConstant.JWT_TOKEN_HEADER.value());
