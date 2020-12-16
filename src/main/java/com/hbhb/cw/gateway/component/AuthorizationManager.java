@@ -1,7 +1,6 @@
 package com.hbhb.cw.gateway.component;
 
 import com.hbhb.core.constants.AuthConstant;
-import com.hbhb.cw.gateway.config.WhiteListConfig;
 import com.hbhb.redis.component.RedisHelper;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -13,7 +12,6 @@ import org.springframework.security.web.server.authorization.AuthorizationContex
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
-import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -39,27 +37,13 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
 
     @Resource
     private RedisHelper redisHelper;
-    @Resource
-    private WhiteListConfig whiteListConfig;
 
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
         ServerHttpRequest request = authorizationContext.getExchange().getRequest();
-        String path = request.getURI().getPath();
         PathMatcher pathMatcher = new AntPathMatcher();
 
-        // 白名单
-        if (whiteListConfig.getUrls().contains(path)) {
-            return Mono.just(new AuthorizationDecision(true));
-        }
-
-        // token为空拒绝访问
-        String token = request.getHeaders().getFirst(AuthConstant.JWT_TOKEN_HEADER.value());
-        if (StringUtils.isEmpty(token)) {
-            return Mono.just(new AuthorizationDecision(false));
-        }
-
-        // 缓存取资源权限角色关系列表
+        // 从缓存中获取资源权限列表
         Map<String, Object> resourceRolesMap = redisHelper.getMap(AuthConstant.RESOURCE_ROLES_KEY.value());
         Iterator<String> iterator = resourceRolesMap.keySet().iterator();
 
@@ -67,7 +51,7 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
         Set<String> authorities = new HashSet<>();
         while (iterator.hasNext()) {
             String pattern = iterator.next();
-            if (pathMatcher.match(pattern, path)) {
+            if (pathMatcher.match(pattern, request.getURI().getPath())) {
                 authorities.addAll((Collection<? extends String>) resourceRolesMap.get(pattern));
             }
         }
@@ -83,8 +67,9 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
 
     /**
      * 鉴权方法
+     *
      * @param authorities 请求该资源所需要角色的集合（从redis中获取）
-     * @param roleId 请求用户的角色（格式：ROLE_{roleId}）
+     * @param roleId      请求用户的角色（格式：ROLE_{roleId}）
      * @return 是否有权限访问该资源
      */
     private boolean authorization(Set<String> authorities, String roleId) {

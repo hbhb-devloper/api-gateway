@@ -2,6 +2,7 @@ package com.hbhb.cw.gateway.filter;
 
 import com.hbhb.core.constants.AuthConstant;
 import com.hbhb.core.utils.JsonUtil;
+import com.hbhb.cw.gateway.config.WhiteListConfig;
 import com.hbhb.cw.gateway.enums.AuthErrorCode;
 import com.hbhb.cw.gateway.util.ResponseUtil;
 import com.hbhb.redis.component.RedisHelper;
@@ -23,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 /**
+ * 全局token校验过滤器
+ *
  * @author xiaokang
  * @since 2020-10-09
  */
@@ -32,14 +35,25 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     @Resource
     private RedisHelper redisHelper;
+    @Resource
+    private WhiteListConfig whiteListConfig;
 
     @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String token = exchange.getRequest().getHeaders().getFirst(AuthConstant.JWT_TOKEN_HEADER.value());
+        ServerHttpRequest request = exchange.getRequest();
+
+        // 白名单直接放行
+        if (whiteListConfig.getUrls().contains(request.getURI().getPath())) {
+            return chain.filter(exchange);
+        }
+
+        // 校验token是否存在
+        String token = request.getHeaders().getFirst(AuthConstant.JWT_TOKEN_HEADER.value());
         if (StringUtils.isEmpty(token)) {
             return chain.filter(exchange);
         }
+
         // 解析token
         token = token.replace(AuthConstant.JWT_TOKEN_PREFIX.value(), Strings.EMPTY);
         JWSObject jwsObject = JWSObject.parse(token);
@@ -54,9 +68,9 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             return ResponseUtil.render(exchange, AuthErrorCode.TOKEN_EXPIRED);
         }
 
-        ServerHttpRequest request = exchange.getRequest().mutate()
+        ServerHttpRequest handleRequest = request.mutate()
                 .header(AuthConstant.JWT_PAYLOAD_KEY.value(), payload).build();
-        exchange = exchange.mutate().request(request).build();
+        exchange = exchange.mutate().request(handleRequest).build();
         return chain.filter(exchange);
     }
 

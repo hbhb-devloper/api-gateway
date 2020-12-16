@@ -31,6 +31,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
+ * 全局响应体处理过滤器
+ *
  * @author xiaokang
  * @since 2020-10-26
  */
