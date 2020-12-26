@@ -46,6 +46,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
      */
     private static final String[] EXCLUDE_PATH = {
             "/v3/api-docs",
+            // 为了兼容swagger认证，故token接口不做封装
             "/oauth/token"
     };
 
