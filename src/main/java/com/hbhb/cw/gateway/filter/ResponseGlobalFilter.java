@@ -107,8 +107,7 @@ public class ResponseGlobalFilter implements GlobalFilter, Ordered {
         try {
             // 如果是非json类型，则封装success返回
             if (!JsonUtil.isJson(result)) {
-                return mapper.writeValueAsString(
-                        ApiResult.success(result.replace("\"", "")));
+                return mapper.writeValueAsString(ApiResult.success(result.replace("\"", "")));
             }
             // 接口调用成功，则封装success返回
             if (!result.contains(ResultCode.FAILED.msg())) {
