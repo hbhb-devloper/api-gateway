@@ -46,7 +46,7 @@ management:
 # 宿主机相关配置
 host:
   # docker0的ip地址
-  docker0-ip: 172.17.0.1
+  docker0-ip: 192.168.0.39
   # 线上环境映射的端口
   map-port: 10010
 #  map-port: 10060
